@@ -1,0 +1,40 @@
+Plan for Left Panel Features
+Filter System
+
+Filter by priority
+Filter by due date range
+Filter by completion status
+Search by title/description
+Tags Management
+
+Create new tags
+Edit existing tags
+Delete tags
+Tag color management
+Tag assignments overview
+Statistics Dashboard
+
+Tasks completed this week
+Tasks due soon
+Priority distribution
+Completion rate chart
+Time to completion average
+Bulk Actions
+
+Multi-select todos
+Batch delete
+Batch priority change
+Batch tag assignment
+Sort Options
+
+By due date
+By priority
+By creation date
+By last modified
+By completion status
+View Settings
+
+Toggle columns visibility
+Change column order
+Adjust row height
+Toggle compact view
