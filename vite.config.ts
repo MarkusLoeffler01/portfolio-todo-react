@@ -18,6 +18,7 @@ export default defineConfig({
       "@type": path.resolve("./src/types"),
       "@ts": path.resolve("./src/ts"),
       "@utils": path.resolve("./src/utils"),
+      "@styles": path.resolve("./src/styles"),
     }
   }
 })

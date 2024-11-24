@@ -21,7 +21,7 @@ interface ToDo {
     files?: File[]; 
     createdAt: Date;
     updatedAt?: Date;
-    priority?: "low" | "medium" | "high";
+    priority: "low" | "medium" | "high";
 
 }
 
