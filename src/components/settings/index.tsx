@@ -2,6 +2,7 @@ import { Drawer, IconButton, Box } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useSettingsPanelStore } from '@stores/settingsPanelStore';
 import FilterPanel from './FilterPanel';
+import SidePanel from '../common/SidePanel';
 
 export const SettingsPanel = () => {
   const { isOpen, togglePanel } = useSettingsPanelStore();
@@ -15,13 +16,17 @@ export const SettingsPanel = () => {
         <MenuIcon />
       </IconButton>
       <Drawer
+
         anchor="left"
         open={isOpen}
         onClose={togglePanel}
       >
-        <Box sx={{ width: 300, p: 2 }}>
-          <FilterPanel />
-        </Box>
+        {/* <SidePanel key="SettingsPanel" open={isOpen} onClose={togglePanel} title='Einstellungen' position='left'> */}
+          <Box sx={{ width: 300, p: 2 }}>
+            <FilterPanel />
+          </Box>
+        {/* </SidePanel> */}
+        
       </Drawer>
     </>
   );

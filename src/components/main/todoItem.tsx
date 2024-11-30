@@ -7,6 +7,8 @@ import useSidePanelStore from "@/stores/sidePanelStore";
 import Box from "@mui/material/Box";
 import { useRef, useState } from 'react';
 import { GridRow } from "@styles/components/layout/Grid";
+import WarningIcon from '@mui/icons-material/Warning';
+import { Tooltip } from '@mui/material';
   
 const MapPriority = (value: "low" | "medium" | "high") => value === 'low' ? 'Niedrig' : value === 'medium' ? 'Mittel' : 'Hoch'
 
@@ -44,10 +46,44 @@ function ToDoItem({ todo }: { todo: ToDo }) {
         onClick={() => setRightPanel("edit", todo)}
         theme={{ palette: { action: { hover: "rgba(40, 40, 40, 0.15)",  } } }}
       >
-        <Box>{todo.title}</Box>
-        <Box>{todo.description}</Box>
-        <Box>{todo.dueDate ? todo.dueDate.toLocaleString(undefined, {timeStyle: "short", dateStyle: "short"}) : "N/A"}</Box>
-        <Box>{MapPriority(todo.priority) || "N/A"}</Box>
+        <Tooltip title={todo.title} enterDelay={500}>
+          <Box>{todo.title}</Box>
+        </Tooltip>
+        
+        <Tooltip title={todo.description} enterDelay={500}>
+          <Box>{todo.description}</Box>
+        </Tooltip>
+        
+        <Tooltip 
+          title={todo.dueDate 
+            ? todo.dueDate.toLocaleString(undefined, {timeStyle: "short", dateStyle: "short"}) 
+            : "N/A"
+          } 
+          enterDelay={500}
+        >
+          <Box
+            sx={{ 
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              color: todo.dueDate && new Date(todo.dueDate) < new Date() 
+                ? 'error.main' 
+                : 'inherit'
+            }}
+          >
+            {todo.dueDate 
+              ? todo.dueDate.toLocaleString(undefined, {timeStyle: "short", dateStyle: "short"}) 
+              : "N/A"}
+            {todo.dueDate && new Date(todo.dueDate) < new Date() && (
+              <WarningIcon fontSize="small" />
+            )}
+          </Box>
+        </Tooltip>
+        
+        <Tooltip title={MapPriority(todo.priority)} enterDelay={500}>
+          <Box>{MapPriority(todo.priority)}</Box>
+        </Tooltip>
+        
         <Box sx={{ display: 'flex', gap: 1 }}>
           <DoneIcon sx={{ cursor: "pointer", '&:hover': {color: "green"}}} onClick={() => handleUpdate("done", true)} /> 
           <DeleteIcon sx={{ cursor: "pointer", '&:hover': {color: "red"}}} onClick={handleRemove} />
