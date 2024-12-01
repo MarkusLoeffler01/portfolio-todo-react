@@ -21,11 +21,11 @@ export const SettingsPanel = () => {
         open={isOpen}
         onClose={togglePanel}
       >
-        {/* <SidePanel key="SettingsPanel" open={isOpen} onClose={togglePanel} title='Einstellungen' position='left'> */}
+        <SidePanel key="SettingsPanel" open={isOpen} onClose={togglePanel} title='Einstellungen' position='left'>
           <Box sx={{ width: 300, p: 2 }}>
             <FilterPanel />
           </Box>
-        {/* </SidePanel> */}
+        </SidePanel>
         
       </Drawer>
     </>
