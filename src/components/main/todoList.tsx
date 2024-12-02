@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 
 interface ToDoListProps {
     sx?: SxProps<Theme>;
+    mode?: 'active' | 'completed';
 }
 
 const EmptyState = () => (
@@ -57,7 +58,7 @@ const EmptyState = () => (
 );
   
 
-const ToDoList = ({sx}: ToDoListProps) => {
+const ToDoList = ({sx, mode = 'active'}: ToDoListProps) => {
     const { todos, loadTodosFromIndexedDB } = useTodoStore();
     const { searchQuery, priorityFilter, dateRange } = useFilterStore();
 
@@ -70,7 +71,8 @@ const ToDoList = ({sx}: ToDoListProps) => {
     if(todos.length === 0) return <EmptyState />;
 
     const filteredTodos = todos.filter(todo => {
-        if (todo.done) return false;
+        // Show completed or active todos based on mode
+        if (mode === 'active' ? todo.done : !todo.done) return false;
         
         if (searchQuery && 
             !todo.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
@@ -95,7 +97,11 @@ const ToDoList = ({sx}: ToDoListProps) => {
                 <Box>Aktion</Box>
             </GridHeader>
             {filteredTodos.map((todo) => (
-                <TodoItem key={todo.id} todo={todo} />
+                <TodoItem 
+                    key={todo.id} 
+                    todo={todo}
+                    mode={mode}
+                />
             ))}
         </GridContainer>
     );

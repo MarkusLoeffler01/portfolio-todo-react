@@ -8,12 +8,13 @@ import Box from "@mui/material/Box";
 import { useRef, useState } from 'react';
 import { GridRow } from "@styles/components/layout/Grid";
 import WarningIcon from '@mui/icons-material/Warning';
+import RestoreIcon from '@mui/icons-material/Restore';
 import { Tooltip } from '@mui/material';
   
 const MapPriority = (value: "low" | "medium" | "high") => value === 'low' ? 'Niedrig' : value === 'medium' ? 'Mittel' : 'Hoch'
 
 
-function ToDoItem({ todo }: { todo: ToDo }) {
+function ToDoItem({ todo, mode = "active" }: { todo: ToDo, mode: 'active' | 'completed' }) {
   const { removeTodo, updateTodo } = useTodoStore();
   const setRightPanel = useSidePanelStore(state => state.setRightPanel);
   const [mousePos, setMousePos] = useState({ x: '0px', y: '0px' });
@@ -27,6 +28,12 @@ function ToDoItem({ todo }: { todo: ToDo }) {
       setMousePos({ x: `${x}px`, y: `${y}px` });
     }
   };
+
+  const handleRowClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target instanceof HTMLElement && e.target.tagName !== "svg") {
+      setRightPanel("edit", todo);
+    }
+  }
 
   const handleRemove = () => {
     removeTodo(todo.id);
@@ -43,7 +50,7 @@ function ToDoItem({ todo }: { todo: ToDo }) {
         onMouseMove={handleMouseMove}
         mouseX={mousePos.x}
         mouseY={mousePos.y}
-        onClick={() => setRightPanel("edit", todo)}
+        onClick={handleRowClick}
         theme={{ palette: { action: { hover: "rgba(40, 40, 40, 0.15)",  } } }}
       >
         <Tooltip title={todo.title} enterDelay={500}>
@@ -85,8 +92,16 @@ function ToDoItem({ todo }: { todo: ToDo }) {
         </Tooltip>
         
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <DoneIcon sx={{ cursor: "pointer", '&:hover': {color: "green"}}} onClick={() => handleUpdate("done", true)} /> 
+          { mode === "active" ? 
+          <Tooltip title="Erlledigt">
+            <DoneIcon sx={{ cursor: "pointer", '&:hover': {color: "green"}}} onClick={() => handleUpdate("done", true)} /> 
+          </Tooltip>
+          : <Tooltip title="Wiederherstellen">
+              <RestoreIcon sx={{ cursor: "pointer", '&:hover': {color: "blue"}}} onClick={() => handleUpdate("done", false)} />
+            </Tooltip>}
+          <Tooltip title="Löschen">
           <DeleteIcon sx={{ cursor: "pointer", '&:hover': {color: "red"}}} onClick={handleRemove} />
+          </Tooltip>
         </Box>
       </GridRow>
       <EditTodo />

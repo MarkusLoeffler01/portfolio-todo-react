@@ -2,7 +2,7 @@ import { create } from "zustand";
 import ToDo from "../types/todo";
 import ToDoDatabase from "./indexedDb";
 
-interface ToDoState {
+type ToDoState = {
     todos: ToDo[];
     addTodo: (todo: ToDo) => Promise<void>;
     removeTodo: (id: string) => Promise<void>;

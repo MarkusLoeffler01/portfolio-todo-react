@@ -10,6 +10,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from '@mui/material/CssBaseline';
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Box from "@mui/material/Box";
+import CompletedTasks from "./components/main/CompletedTasks";
 
 
 
@@ -39,6 +40,7 @@ function App() {
         <Box sx={{ width: "100%"}}>
           <ToDoForm onSubmit={handleAddToDo} />
           <ToDoList />
+          <CompletedTasks />
         </Box>
       </Box>
     </ThemeProvider>
