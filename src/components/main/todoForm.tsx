@@ -20,18 +20,41 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
 import Checkbox from "@mui/material/Checkbox";
 import CloseIcon from '@mui/icons-material/Close';
+import TagList, { Tag } from "../dragdrop/TagList";
+import { useTagsStorePersisted } from "@/stores/tagsStore";
+
 
 interface ToDoFormProps {
   onSubmit: (todo: ToDoUserInput) => void;
 }
 
-const tags = ["Work", "Personal", "Urgent"];
 type UpdateToDoField = <K extends keyof ToDoUserInput> (field: K, value: ToDoUserInput[K]) => void;
 
 const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [activePopover, setActivePopover] = useState<"date" | "tag" | "priority" | null>(null);
   const [newTag, setNewTag] = useState<string>("");
+  const { tags, setTags, addTag} = useTagsStorePersisted();
+  const [inputError, setInputError] = useState<Tag | null>(null);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+
+
+  const handleSelectedTags = (tag: Tag) => {
+    if(selectedTags.includes(tag)){
+      setSelectedTags(selectedTags.filter(t => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  }
+
+  const activateInputError = (ms: number) => {
+    const dupedTagName = tags.find(tag => tag.name === newTag);
+    if(!dupedTagName)return; 
+    setInputError(dupedTagName);
+    setTimeout(() => setInputError(null), ms);
+  }
+
+
 
   const handleIconClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -82,7 +105,8 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
               width: 'fit-content',  // Container adjusts to content
               minWidth: 200  // Minimum width for usability
             }}>
-              {tags.map((tag) => (
+              <TagList tags={tags} erroredTag={inputError} setTags={setTags} selectedTags={selectedTags} handleSelectedTags={handleSelectedTags} />
+              {/* {tags.map((tag) => (
                 <FormControlLabel
                   key={tag}
                   control={
@@ -132,7 +156,7 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
                     }
                   }}
                 />
-              ))}
+              ))} */}
               <Box sx={{ 
                 display: 'flex', 
                 gap: 1, 
@@ -141,14 +165,19 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
                 width: '100%'  // Match parent width
               }}>
                 <TextField
+                  error={inputError !== null}
+                  aria-errormessage={inputError ?? undefined}
+                  variant="outlined"
                   size="small"
                   placeholder="New tag"
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyPress={(e) => {
-                    if (e.key === 'Enter' && newTag.trim()) {
-                      const currentTags = Array.isArray(values.tags) ? values.tags : [];
-                      setFieldValue("tags", [...currentTags, newTag.trim()]);
+                    if(e.key !== "Enter") return;
+                    const trimmedTag = newTag.trim();
+                    if (trimmedTag) {
+                      if(tags.filter(tag => tag.name === trimmedTag).length > 0) return activateInputError(2000);
+                      addTag(newTag.trim());
                       setNewTag('');
                     }
                   }}
@@ -161,9 +190,10 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
                 <IconButton
                   color="primary"
                   onClick={() => {
-                    if (newTag.trim()) {
-                      const currentTags = Array.isArray(values.tags) ? values.tags : [];
-                      setFieldValue("tags", [...currentTags, newTag.trim()]);
+                    const trimmedTag = newTag.trim();
+                    if (trimmedTag) {
+                      if(tags.filter(tag => tag.name === trimmedTag).length > 0) return;
+                      addTag(newTag.trim());
                       setNewTag('');
                     }
                   }}
