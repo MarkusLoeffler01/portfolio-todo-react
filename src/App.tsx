@@ -11,6 +11,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Box from "@mui/material/Box";
 import CompletedTasks from "./components/main/CompletedTasks";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -42,6 +44,9 @@ function App() {
           <ToDoList />
           <CompletedTasks />
         </Box>
+        <ToastContainer pauseOnHover theme="dark" pauseOnFocusLoss={false} toastStyle={
+          { backgroundColor: "#333", color: "#fff" }
+        } />
       </Box>
     </ThemeProvider>
   )

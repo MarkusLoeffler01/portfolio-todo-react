@@ -16,14 +16,14 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { UpdateToDoField } from "../main/todoForm";
 
 export interface Tag {
   id: number;
   name: string;
 }
 
-const SortableTag = ({ handleSelectedTags, tag, onDelete, errored, selected, setSelected }: { handleSelectedTags: (tag: Tag) => void, tag: Tag; onDelete: (id: number) => void, errored: boolean, selected: boolean, setSelected: React.Dispatch<React.SetStateAction<boolean>>
-}) => {
+const SortableTag = ({ handleSelectedTags, tag, onDelete, errored, selected, setFieldValue, selectedTags }: { handleSelectedTags: (tag: Tag) => void, tag: Tag; onDelete: (id: number) => void, errored: boolean, selected: boolean, setFieldValue: UpdateToDoField, selectedTags: Tag[]}) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: tag.id });
 
@@ -52,7 +52,7 @@ const SortableTag = ({ handleSelectedTags, tag, onDelete, errored, selected, set
 
 
   return (
-    <div onClick={() => handleSelectedTags(tag)} ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div onClick={() => { handleSelectedTags(tag); setFieldValue("tags", [...selectedTags.map(e => e.name), tag.name])}} ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <Checkbox checked={selected} onClick={() => false}
       
       sx={{
@@ -71,7 +71,7 @@ const SortableTag = ({ handleSelectedTags, tag, onDelete, errored, selected, set
   );
 };
 
-const TagList = ({tags, setTags, erroredTag, selectedTags, handleSelectedTags}: {tags: Tag[], setTags: (tags: Tag[]) => void, erroredTag: Tag | null, selectedTags: Tag[], handleSelectedTags: (tag: Tag) => void}) => {
+const TagList = ({tags, setTags, erroredTag, selectedTags, handleSelectedTags, setFieldValue}: {tags: Tag[], setTags: (tags: Tag[]) => void, erroredTag: Tag | null, selectedTags: Tag[], handleSelectedTags: (tag: Tag) => void, setFieldValue: UpdateToDoField}) => {
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -102,7 +102,7 @@ const TagList = ({tags, setTags, erroredTag, selectedTags, handleSelectedTags}: 
     >
       <SortableContext items={tags} strategy={verticalListSortingStrategy}>
         {tags.map((tag) => (
-          <SortableTag  handleSelectedTags={handleSelectedTags} errored={tag.id === erroredTag?.id} selected={selectedTags.find(i => i.id === tag.id)?.id ? true : false} key={tag.id} tag={tag} onDelete={handleDelete} />
+          <SortableTag selectedTags={selectedTags} handleSelectedTags={handleSelectedTags} setFieldValue={setFieldValue} errored={tag.id === erroredTag?.id} selected={selectedTags.find(i => i.id === tag.id)?.id ? true : false} key={tag.id} tag={tag} onDelete={handleDelete} />
         ))}
       </SortableContext>
     </DndContext>

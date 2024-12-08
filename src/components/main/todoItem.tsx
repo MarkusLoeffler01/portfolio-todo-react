@@ -80,9 +80,9 @@ function ToDoItem({ todo, mode = "active" }: { todo: ToDo, mode: 'active' | 'com
           >
             {todo.dueDate 
               ? todo.dueDate.toLocaleString(undefined, {timeStyle: "short", dateStyle: "short"}) 
-              : "N/A"}
+              : "N/A"}  
             {todo.dueDate && new Date(todo.dueDate) < new Date() && (
-              <WarningIcon fontSize="small" />
+              <WarningIcon sx={{ right: 0, fontSize: "1.2rem" }} fontSize="small" />
             )}
           </Box>
         </Tooltip>

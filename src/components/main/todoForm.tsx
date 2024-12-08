@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import type { ToDoUserInput } from "@/types/todo";
 import generateTodo, { toDoUserInputSchema } from "@ts/todoGenerator";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FormikErrors, FormikTouched } from "formik";
 import Grid from "@mui/material/Grid2";
 import TextField from "@mui/material/TextField";
 import { DesktopDateTimePicker } from "@mui/x-date-pickers/DesktopDateTimePicker";
@@ -18,8 +18,6 @@ import Paper from "@mui/material/Paper";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
-import Checkbox from "@mui/material/Checkbox";
-import CloseIcon from '@mui/icons-material/Close';
 import TagList, { Tag } from "../dragdrop/TagList";
 import { useTagsStorePersisted } from "@/stores/tagsStore";
 
@@ -28,7 +26,7 @@ interface ToDoFormProps {
   onSubmit: (todo: ToDoUserInput) => void;
 }
 
-type UpdateToDoField = <K extends keyof ToDoUserInput> (field: K, value: ToDoUserInput[K]) => void;
+export type UpdateToDoField = <K extends keyof ToDoUserInput> (field: K, value: ToDoUserInput[K]) => void;
 
 const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -39,12 +37,13 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
 
-  const handleSelectedTags = (tag: Tag) => {
+  const handleSelectedTags = (tag: Tag ) => {
     if(selectedTags.includes(tag)){
       setSelectedTags(selectedTags.filter(t => t !== tag));
     } else {
       setSelectedTags([...selectedTags, tag]);
     }
+
   }
 
   const activateInputError = (ms: number) => {
@@ -72,7 +71,7 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
   
 
   // Render popover content based on active type
-  const renderPopoverContent = (values: ToDoUserInput, setFieldValue: UpdateToDoField) => {
+  const renderPopoverContent = (values: ToDoUserInput, setFieldValue: UpdateToDoField, errors: FormikErrors<ToDoUserInput>, touched: FormikTouched<ToDoUserInput>) => {
     switch (activePopover) {
       case "date":
         return (
@@ -88,6 +87,13 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
               }}
               minDate={new Date()}
               minDateTime={new Date()}
+              slotProps={{
+                textField: {
+                  value: values.dueDate,
+                  error: touched.dueDate && Boolean(errors.dueDate),
+                  helperText: touched.dueDate && errors.dueDate
+                }
+              }}  
             />
           </LocalizationProvider>
         );
@@ -105,58 +111,7 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
               width: 'fit-content',  // Container adjusts to content
               minWidth: 200  // Minimum width for usability
             }}>
-              <TagList tags={tags} erroredTag={inputError} setTags={setTags} selectedTags={selectedTags} handleSelectedTags={handleSelectedTags} />
-              {/* {tags.map((tag) => (
-                <FormControlLabel
-                  key={tag}
-                  control={
-                    <Checkbox
-                      checked={Array.isArray(values.tags) ? values.tags.includes(tag) : false}
-                      onChange={(e) => {
-                        const currentTags = Array.isArray(values.tags) ? values.tags : [];
-                        if (e.target.checked) {
-                          setFieldValue("tags", [...currentTags, tag]);
-                        } else {
-                          setFieldValue("tags", currentTags.filter(t => t !== tag));
-                        }
-                      }}
-                    />
-                  }
-                  label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                      {tag}
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          const currentTags = Array.isArray(values.tags) ? values.tags : [];
-                          setFieldValue("tags", currentTags.filter(t => t !== tag));
-                        }}
-                      >
-                        <CloseIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  }
-                  sx={{
-                    border: "1px solid",
-                    borderColor: Array.isArray(values.tags) && values.tags.includes(tag) 
-                      ? 'primary.main' 
-                      : '#ccc',
-                    borderRadius: 2,
-                    p: 1,
-                    m: 0.5,
-                    flex: '1 1 auto',  // Grow and shrink equally
-                    backgroundColor: Array.isArray(values.tags) && values.tags.includes(tag)
-                      ? 'action.hover'
-                      : 'transparent',
-                    transition: 'all 0.2s',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      backgroundColor: 'action.hover',
-                    }
-                  }}
-                />
-              ))} */}
+              <TagList tags={tags} erroredTag={inputError} setTags={setTags} selectedTags={selectedTags} handleSelectedTags={handleSelectedTags} setFieldValue={setFieldValue} />
               <Box sx={{ 
                 display: 'flex', 
                 gap: 1, 
@@ -164,6 +119,7 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
                 alignItems: 'center',
                 width: '100%'  // Match parent width
               }}>
+                {/* @ts-expect-error TextField intellisense errros for some reason, idk. Send PR if you like */ }
                 <TextField
                   error={inputError !== null}
                   aria-errormessage={inputError ?? undefined}
@@ -261,7 +217,7 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
         title: "",
         description: "",
         dueDate: null,
-        tag: "",
+        tags: [],
         priority: "medium" as "low" | "medium" | "high",
       }}
       validationSchema={toDoUserInputSchema}
@@ -270,10 +226,11 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
         const newTodo = generateTodo(values);
         onSubmit(newTodo);
         resetForm();
+        console.log(newTodo);
         handlePopoverClose();
       }}
     >
-      {({ values, setFieldValue, isSubmitting, resetForm, setErrors }) => (
+      {({ values, setFieldValue, isSubmitting, resetForm, setErrors, errors, touched }) => (
         <Form>
           <Paper
             elevation={3}
@@ -293,7 +250,8 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
               label="Title"
               variant="outlined"
               placeholder="Aufgabe hinzufügen"
-              helperText={<ErrorMessage name="title" />}
+              error={touched.title && errors.title}
+              helperText={touched.title && errors.title && <ErrorMessage name="title" />}
               InputProps={{
                 startAdornment: (
                     <IconButton sx={{ marginRight: 1, marginLeft: -1, cursor: "pointer"}} disabled={isSubmitting} type="submit" color="primary" onClick={() => {
@@ -335,7 +293,7 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
               }}
             >
               <Box sx={{ p: 2 }}>
-                {renderPopoverContent(values, setFieldValue)}
+                {renderPopoverContent(values, setFieldValue, errors, touched)}
               </Box>
             </Popover>
           </Paper>
