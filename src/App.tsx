@@ -13,9 +13,8 @@ import Box from "@mui/material/Box";
 import CompletedTasks from "./components/main/CompletedTasks";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3/AdapterDateFnsV3";
-
+import { LocalizationProvider } from "@mui/x-date-pickers-pro/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 
 
 function App() {
@@ -58,8 +57,8 @@ function App() {
       { __BUILD_ID__ && <Box sx={{position: "absolute", top: "95%", left: "0", marginLeft: "10px", color: "#252525"}}>
           <p>BuildID: {__BUILD_ID__}</p>
       </Box>}
-      { __BUILD_TIME__ && <Box sx={{position: "absolute", top: "95%", right: "0", marginRight: "10px", color: "#252525"}}>
-        <p>Compiled at: {new Date(__BUILD_TIME__).toLocaleString()}</p>
+      { __BUILD_TIMESTAMP__ && <Box sx={{position: "absolute", top: "95%", right: "0", marginRight: "10px", color: "#252525"}}>
+        <p>Compiled at: {new Date(__BUILD_TIMESTAMP__).toLocaleString()}</p>
       </Box> }
       </LocalizationProvider>
     </ThemeProvider>

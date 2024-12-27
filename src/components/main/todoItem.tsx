@@ -9,7 +9,7 @@ import { useRef, useState } from 'react';
 import { GridRow } from "@styles/components/layout/Grid";
 import WarningIcon from '@mui/icons-material/Warning';
 import RestoreIcon from '@mui/icons-material/Restore';
-import { Tooltip } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
   
 const MapPriority = (value: "low" | "medium" | "high") => value === 'low' ? 'Niedrig' : value === 'medium' ? 'Mittel' : 'Hoch'
 

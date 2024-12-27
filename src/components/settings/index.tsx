@@ -1,4 +1,6 @@
-import { Drawer, IconButton, Box } from '@mui/material';
+import Drawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
+import Box from '@mui/material/Box';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useSettingsPanelStore } from '@stores/settingsPanelStore';
 import FilterPanel from './FilterPanel';

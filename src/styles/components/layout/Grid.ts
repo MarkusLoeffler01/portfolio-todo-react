@@ -1,6 +1,7 @@
 import type { RecursivePartial } from "@/types/core";
 import styled from "@emotion/styled";
-import { Box, Theme as MuiTheme } from "@mui/material";
+import { Theme as MuiTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
 
 export const GridContainer = styled(Box)({
   display: 'flex',

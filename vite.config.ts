@@ -10,6 +10,21 @@ export default defineConfig({
     __BUILD_TIMESTAMP__: JSON.stringify(process.env.BUILD_TIMESTAMP || Math.floor(Date.now() / 1000)), // Fallback: Aktuelle Unix-Zeit
     __BUILD_ID__: JSON.stringify(process.env.BUILD_ID || execSync('git rev-parse --short HEAD').toString().trim()), // Fallback: Aktueller Git-Commit
   },
+  build: {
+    rollupOptions: {
+      treeshake: true,
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          mui: ['@mui/material', '@mui/icons-material'],
+          dateFns: ['date-fns'],
+          formik: ['formik', 'yup'],
+          reactToastify: ['react-toastify'],
+          muiX: ['@mui/x-license', '@mui/x-date-pickers', '@mui/x-date-pickers-pro'],
+        }
+      }
+    }
+  },
   resolve: {
     alias: {
       "@": "/src",
