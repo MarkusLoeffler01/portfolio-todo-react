@@ -13,6 +13,8 @@ import Box from "@mui/material/Box";
 import CompletedTasks from "./components/main/CompletedTasks";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3/AdapterDateFnsV3";
 
 
 
@@ -36,6 +38,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
       <CssBaseline />
       <SettingsPanel />
       <Box sx={{ width: "50vw", display: "flex", justifyContent: "center", p: 2, flexDirection: "column" }}>
@@ -47,7 +50,18 @@ function App() {
         <ToastContainer pauseOnHover theme="dark" pauseOnFocusLoss={false} toastStyle={
           { backgroundColor: "#333", color: "#fff" }
         } />
+        {/* <Box className="information" sx={{ width: "100%", display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center" }}>
+          <p>BuildID: {import.meta.env.BUILD_ID}</p>
+          <p>Compiled at: {new Date(import.meta.env.BUILD_TIME).toLocaleString()}</p>
+        </Box> */}
       </Box>
+      { __BUILD_ID__ && <Box sx={{position: "absolute", top: "95%", left: "0", marginLeft: "10px", color: "#252525"}}>
+          <p>BuildID: {__BUILD_ID__}</p>
+      </Box>}
+      { __BUILD_TIME__ && <Box sx={{position: "absolute", top: "95%", right: "0", marginRight: "10px", color: "#252525"}}>
+        <p>Compiled at: {new Date(__BUILD_TIME__).toLocaleString()}</p>
+      </Box> }
+      </LocalizationProvider>
     </ThemeProvider>
   )
 }

@@ -1,7 +1,6 @@
 import { Box, TextField, Checkbox, FormControlLabel, Typography } from '@mui/material';
 import { useFilterStore } from '@stores/filterStore';
-import { DateRangePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { DateRangePicker } from '@mui/x-date-pickers-pro';
 
 const FilterPanel = () => {
   const {
@@ -29,6 +28,7 @@ const FilterPanel = () => {
         {['low', 'medium', 'high'].map((priority) => (
           <FormControlLabel
             key={priority}
+            data-testid={"priority-filter-"+priority}
             control={
               <Checkbox
                 checked={priorityFilter.includes(priority as "low" | "medium" | "high")}
@@ -46,8 +46,8 @@ const FilterPanel = () => {
         ))}
       </Box>
 
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
         <DateRangePicker
+        format='dd.MM.yyyy'
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -63,9 +63,8 @@ const FilterPanel = () => {
           localeText={{ start: 'Fällig von', end: 'Fällig bis' }}
           value={[dateRange.start, dateRange.end]}
           onChange={([start, end]) => setDateRange({ start, end })}
+          calendars={2}
         />
-      </LocalizationProvider>
-
     </Box>
   );
 };

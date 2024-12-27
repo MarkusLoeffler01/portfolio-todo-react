@@ -10,6 +10,8 @@ export interface File {
 
 export type ToDoUserInput = Omit<ToDo, "id" | "done" | "createdAt" | "updatedAt">
 
+export type UpdateToDoField = <K extends keyof ToDoUserInput> (field: K, value: ToDoUserInput[K]) => void;
+
 interface ToDo {
     /** uuid from package `uuid` */
     id: string;

@@ -46,6 +46,7 @@ function ToDoItem({ todo, mode = "active" }: { todo: ToDo, mode: 'active' | 'com
   return (
     <>
       <GridRow
+        data-testid={`todo-${todo.id}`}
         ref={rowRef}
         onMouseMove={handleMouseMove}
         mouseX={mousePos.x}

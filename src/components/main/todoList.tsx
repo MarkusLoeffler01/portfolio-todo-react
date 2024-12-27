@@ -14,7 +14,8 @@ interface ToDoListProps {
 }
 
 const EmptyState = () => (
-  <Box 
+  <Box
+    data-testid="EmptyState"
     sx={{ 
       display: 'flex', 
       flexDirection: 'column',
@@ -68,7 +69,7 @@ const ToDoList = ({sx, mode = 'active'}: ToDoListProps) => {
         })();
     }, [loadTodosFromIndexedDB]);
 
-    if(todos.length === 0) return <EmptyState />;
+    if(todos.length === 0 && mode === "active" ) return <EmptyState />;
 
     const filteredTodos = todos.filter(todo => {
         // Show completed or active todos based on mode
@@ -87,6 +88,8 @@ const ToDoList = ({sx, mode = 'active'}: ToDoListProps) => {
         return true;
     });
 
+    if(filteredTodos.length === 0) return <></>;
+
     return (
         <GridContainer sx={sx}>
             <GridHeader>
@@ -97,7 +100,7 @@ const ToDoList = ({sx, mode = 'active'}: ToDoListProps) => {
                 <Box>Aktion</Box>
             </GridHeader>
             {filteredTodos.map((todo) => (
-                <TodoItem 
+                <TodoItem
                     key={todo.id} 
                     todo={todo}
                     mode={mode}

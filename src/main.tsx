@@ -19,3 +19,11 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
+
+
+declare global {
+  interface window {
+    BUILD_ID: string;
+    BUILD_TIME: string;
+  }
+}

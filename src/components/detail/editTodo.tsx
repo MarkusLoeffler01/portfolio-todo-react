@@ -1,18 +1,17 @@
 // src/components/main/editTodo.tsx
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { toDoUserInputSchema } from '@ts/todoGenerator';
 import type { ToDoUserInput } from '@type/todo';
-import { TextField, Button, Radio, Box, MenuItem, Select, Autocomplete, Chip, Icon, Typography } from '@mui/material';
+import { TextField, Button, Radio, Box, MenuItem, Select, Autocomplete, Chip } from '@mui/material';
 import useTodoStore from '@stores/todoStore';
 import useSidePanelStore from '@stores/sidePanelStore';
 import { useTagsStorePersisted } from '@/stores/tagsStore';
 import SidePanel from "@components/common/SidePanel";
-import { DateTimePicker, DesktopDateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { toast } from 'react-toastify';
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
-import InfoIcon from "@mui/icons-material/Info"
+import CustomDateTimePicker from '../common/CustomDateTimePicker';
+
 
 const EditTodo = () => {
   const { activeRightPanel, currentTodo, closeRightPanel } = useSidePanelStore();
@@ -72,43 +71,19 @@ const EditTodo = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={toDoUserInputSchema}
+          validateOnBlur={true}
+          validateOnMount={true}
+          validateOnChange={true}
           onSubmit={handleSubmit}
         >
-          {({ values, setFieldValue, isSubmitting, errors, touched, setFieldError }) => {
-            /**
-             * const [dateInput, setDateInput] = useState(() => {
-              return values.dueDate && !isNaN(new Date(values.dueDate).getTime()) 
-                ? format(new Date(values.dueDate), 'dd.MM.yyyy HH:mm')
-                : '';
-            });
-
-            const handleDateInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-              const input = e.target?.value ?? dateInput;
-
-              setFieldValue('dueDate', input);
-              setDateInput(input);
-              
-              // Clear error while typing
-              setFieldError('dueDate', undefined);
-              console.log('input', input);
-          
-              // Only validate complete inputs
-              if (input.length === 16) {
-                console.log("Validating date", input);
-                try {
-                  const parsedDate = parse(input, 'dd.MM.yyyy HH:mm', new Date());
-                  if (!isNaN(parsedDate.getTime())) {
-                    setFieldValue('dueDate', parsedDate);
-                  } else {
-                    setFieldError('dueDate', 'Ungültiges Datum');
-                  }
-                } catch (error) {
-                  setFieldError('dueDate', 'Ungültiges Datum');
-                }
-              }
-            };
-            */
-
+          {({ errors, touched, setFieldValue, values, isValidating, isSubmitting, dirty, setFieldError }) => {
+            console.log("Form validation state", {
+              errors: JSON.stringify(errors),
+              touched: JSON.stringify(touched),
+              isValidating,
+              isSubmitting,
+              dirty,
+            })
             if (Object.keys(errors).length > 0) {
               console.log('errors', errors);
             }
@@ -136,45 +111,16 @@ const EditTodo = () => {
                   error={touched.description && Boolean(errors.description)}
                   helperText={touched.description && errors.description}
                 />
-                <Field as={"div"}>
-                  <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DateTimePicker
-                      sx={{ width: '100%' }}
-                      ampm={false}
-                      format='dd.MM.yyyy HH:mm'
-                      disablePast
-                      label="Fälligkeitsdatum"
-                      name='dueDate'
-                      value={values.dueDate}
-                      onChange={(newValue) => {
-                        setFieldValue('dueDate', newValue);
-                      }}
-                      onError={(reason) => {
-                        if(reason === "disablePast") setFieldError("dueDate", "Fälligkeitsdatum darf nicht in der Vergangenheit sein");
-                      }}
-                      // onChange={(newValue) => {
-                      //   if (!newValue) {
-                      //     setDateInput('');
-                      //     setFieldValue('dueDate', null);
-                      //   }
-                      // }}
-                      // onError={((reason, value) => {
-                      //   console.error(reason, value);
-                      // })}
-                      slotProps={{
-                        textField: {
-                          disabled: true,
-                          value: values.dueDate,
-                          error: touched.dueDate && Boolean(errors.dueDate),
-                          helperText: touched.dueDate && errors.dueDate
-                          // onChange: handleDateInputChange,
-                          // onBlur: (value) => setFieldValue('dueDate', values.dueDate),
-                          // error: Boolean(touched.dueDate && Boolean(errors.dueDate) && values.dueDate?.length === 16),
-                          // helperText: touched.dueDate && errors.dueDate && values.dueDate?.length === 16 ? errors.dueDate : ''
-                        }
-                      }}
-                    />
-                  </LocalizationProvider>
+                <Field name="dueDate" as={"div"}>
+                      <CustomDateTimePicker
+                      //@ts-expect-error - Type 'string' is not assignable to type 'never[]'.
+                        setErrors={setFieldError}
+                        errors={errors} 
+                        name='dueDate' 
+                        setFieldValue={setFieldValue} 
+                        touched={touched} 
+                        value={values.dueDate} 
+                      />
                 </Field>
                 <Field name="priority" label="Priorität">
                   {({ field }: { field: { value: string } }) => (
@@ -286,12 +232,6 @@ const EditTodo = () => {
             );
           }}
         </Formik>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <InfoIcon />
-          <Typography>
-            Fälligkeitsdatum lässt sich zurzeit nur durch den DatePicker (Icon) setzen
-          </Typography>
-        </Box>
       </Box>
     </SidePanel>
   );

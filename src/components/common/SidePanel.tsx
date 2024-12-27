@@ -51,6 +51,7 @@ const SidePanel = ({
   return (
     <Box
       sx={{
+        "dataTestid": "side-panel",
         position: "fixed",
         top: 0,
         [position]: 0,
@@ -84,7 +85,7 @@ const SidePanel = ({
 
 
 function SidePanelHeader({ title, onClose }: { title: string, onClose: () => void }) {
-  return <Box sx={{ 
+  return <Box data-testid="SettingsPanel" sx={{ 
     p: 2, 
     borderBottom: 1, 
     borderColor: 'divider',

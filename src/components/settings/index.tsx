@@ -13,7 +13,7 @@ export const SettingsPanel = () => {
         onClick={togglePanel}
         sx={{ position: 'fixed', top: 16, left: 16 }}
       >
-        <MenuIcon />
+        <MenuIcon data-testid="SettingsButton" />
       </IconButton>
       <Drawer
 

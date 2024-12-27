@@ -1,12 +1,9 @@
 import React, { useState } from "react";
-import type { ToDoUserInput } from "@/types/todo";
+import type { ToDoUserInput } from "@type/todo";
 import generateTodo, { toDoUserInputSchema } from "@ts/todoGenerator";
 import { Formik, Form, Field, ErrorMessage, FormikErrors, FormikTouched } from "formik";
 import Grid from "@mui/material/Grid2";
 import TextField from "@mui/material/TextField";
-import { DesktopDateTimePicker } from "@mui/x-date-pickers/DesktopDateTimePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import AddIcon from "@mui/icons-material/Add";
 import TagIcon from "@mui/icons-material/Tag";
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
@@ -20,13 +17,11 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
 import TagList, { Tag } from "../dragdrop/TagList";
 import { useTagsStorePersisted } from "@/stores/tagsStore";
-
+import CustomDateTimePicker from "../common/CustomDateTimePicker";
 
 interface ToDoFormProps {
   onSubmit: (todo: ToDoUserInput) => void;
 }
-
-export type UpdateToDoField = <K extends keyof ToDoUserInput> (field: K, value: ToDoUserInput[K]) => void;
 
 const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -36,14 +31,12 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
   const [inputError, setInputError] = useState<Tag | null>(null);
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
-
   const handleSelectedTags = (tag: Tag ) => {
     if(selectedTags.includes(tag)){
       setSelectedTags(selectedTags.filter(t => t !== tag));
     } else {
       setSelectedTags([...selectedTags, tag]);
     }
-
   }
 
   const activateInputError = (ms: number) => {
@@ -52,8 +45,6 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
     setInputError(dupedTagName);
     setTimeout(() => setInputError(null), ms);
   }
-
-
 
   const handleIconClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -68,34 +59,31 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
     setActivePopover(null);
   };
 
-  
+  type SetFieldValue = <T>(
+    field: keyof ToDoUserInput,
+    value: T,
+    shouldValidate?: boolean
+) => Promise<void | FormikErrors<ToDoUserInput>>;
 
   // Render popover content based on active type
-  const renderPopoverContent = (values: ToDoUserInput, setFieldValue: UpdateToDoField, errors: FormikErrors<ToDoUserInput>, touched: FormikTouched<ToDoUserInput>) => {
+  const renderPopoverContent = (
+    values: ToDoUserInput, 
+    setFieldValue: SetFieldValue,
+    errors: FormikErrors<ToDoUserInput>,
+    touched: FormikTouched<ToDoUserInput>,
+    setErrors: (errors: FormikErrors<{
+      title: string;
+      description: string;
+      dueDate: null;
+      tags: never[];
+      priority: "low" | "medium" | "high";
+  }>) => void
+) => {
     switch (activePopover) {
       case "date":
         return (
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DesktopDateTimePicker
-              ampm={false}
-              format="dd.MM.yyyy HH:mm"
-              disablePast
-              label="Fälligkeitsdatum"
-              value={values.dueDate}
-              onChange={(newValue) => {
-                setFieldValue("dueDate", newValue);
-              }}
-              minDate={new Date()}
-              minDateTime={new Date()}
-              slotProps={{
-                textField: {
-                  value: values.dueDate,
-                  error: touched.dueDate && Boolean(errors.dueDate),
-                  helperText: touched.dueDate && errors.dueDate
-                }
-              }}  
-            />
-          </LocalizationProvider>
+          //@ts-expect-error setFieldValue does not like the type but it works
+            <CustomDateTimePicker errors={errors} name='dueDate' setFieldValue={setFieldValue} setErrors={setErrors} touched={touched} value={values.dueDate} />
         );
       case "tag":
         return (
@@ -221,7 +209,11 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
         priority: "medium" as "low" | "medium" | "high",
       }}
       validationSchema={toDoUserInputSchema}
-      onSubmit={(values, { resetForm }) => {
+      
+      onSubmit={async (values, { resetForm, validateField }) => {
+        const isDateValid = await validateField("dueDate");
+        console.log(isDateValid);
+        if(!isDateValid) return;
         console.log("Form submitted with values:", values);
         const newTodo = generateTodo(values);
         onSubmit(newTodo);
@@ -250,12 +242,14 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
               label="Title"
               variant="outlined"
               placeholder="Aufgabe hinzufügen"
-              error={touched.title && errors.title}
+              error={touched.title && Boolean(errors.title)}
               helperText={touched.title && errors.title && <ErrorMessage name="title" />}
               InputProps={{
                 startAdornment: (
                     <IconButton sx={{ marginRight: 1, marginLeft: -1, cursor: "pointer"}} disabled={isSubmitting} type="submit" color="primary" onClick={() => {
                       if(!values.title) return setErrors({ title: "Title is required" });
+                      // Check if any of the errors are present and return if so
+                      if(Object.keys(errors).length > 0) return;
                       const newTodo = generateTodo(values);
                       onSubmit(newTodo);
                       resetForm();
@@ -267,7 +261,13 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
               }}
             />
 
-            <Grid container spacing={1} alignItems="center">
+            <Grid
+              container
+              spacing={1}
+              justifyContent={"space-between"}
+              alignItems="center"
+              >
+              <Grid container spacing={1} alignItems="center">
               <IconButton onClick={(e) => handleIconClick(e, "date")}>
                 <CalendarTodayIcon />
               </IconButton>
@@ -278,6 +278,19 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
                 <PriorityHighIcon />
               </IconButton>
             </Grid>
+
+            <Grid container spacing={1} alignItems="center">
+              {Object.keys(errors).map(([key, value]) => {
+                if(value) console.log(key, value);
+                return <></>;
+              })}
+              {errors.dueDate?.length && errors.dueDate.length > 0 && <Box sx={{ color: "#f44336"}} component="div" data-name="dueDate">{errors.dueDate}</Box>}
+            </Grid>
+            <Grid>
+              {/** Empty grid for positioning */}
+            </Grid>
+            </Grid>
+            
 
             <Popover
               open={Boolean(anchorEl)}
@@ -293,7 +306,7 @@ const TodoForm: React.FC<ToDoFormProps> = ({ onSubmit }) => {
               }}
             >
               <Box sx={{ p: 2 }}>
-                {renderPopoverContent(values, setFieldValue, errors, touched)}
+                {renderPopoverContent(values, setFieldValue, errors, touched, setErrors)}
               </Box>
             </Popover>
           </Paper>

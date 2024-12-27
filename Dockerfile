@@ -1,22 +1,33 @@
 FROM node:23-alpine AS builder
 
+RUN apk add --no-interactive git
+
 WORKDIR /app
 
 RUN npm i -g typescript
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm i --silent
 
 COPY . .
 
+ARG BUILD_TIMESTAMP
+ARG BUILD_ID
+
+ENV BUILD_TIMESTAMP=$BUILD_TIMESTAMP
+ENV BUILD_ID=$BUILD_ID
 
 RUN npm run build
 
 FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
 
+COPY --from=builder /app/dist .
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Add metadata for debugging purposes
+LABEL org.opencontainers.image.created=$BUILD_TIMESTAMP
+LABEL org.opencontainers.image.revision=$BUILD_ID
 
 EXPOSE 80
 

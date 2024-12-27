@@ -2,7 +2,7 @@ import type Todo from "@type/todo";
 import type { ToDoUserInput } from "@type/todo";
 import { v4 as uuidv4 } from "uuid";
 
-import { object, string, number, date, array, mixed, boolean } from "yup";
+import { object, string, number, array, mixed } from "yup";
 
 
 /*
@@ -68,56 +68,24 @@ export const toDoUserInputSchema = object({
 */
 
 export const toDoUserInputSchema = object({
-    title: string().required("Title is required"),
+    title: string().required("Titel darf nicht leer sein"),
     description: string().optional(),
-    dueDate: string().optional().nullable().when("validateDueDate", (dueDate, schema) => {
-        return schema.test({
-            name: "date-validation",
-            test: function(value) {
-                if(!value) return true;
-                
-                const regex = /^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/; // dd.MM.yyyy HH:mm
-                if (!regex.test(value)) {
-                    console.log("regex failed", value);
-                    return true; // Wert ist unvollständig oder im Bearbeitungsmodus -> Keine Validierung
-                }
-
-                const [ datePart, timePart ] = value.split(" ");
-                const [ day, month, year ] = datePart.split(".").map(Number);
-                const [ hour, minute ] = timePart.split(":").map(Number);
-
-                const isValidDate = 
-                    year > 1900 && 
-                    month >= 1 &&
-                    month <= 12 &&
-                    day >= 1 &&
-                    day <= new Date(year, month, 0).getDate();
-
-                const isValidTime =
-                    hour >= 0 &&
-                    hour <= 23 &&
-                    minute >= 0 &&
-                    minute <= 59;
-
-                const inputDate = new Date(year, month - 1, day, hour, minute);
-                const isInPast = inputDate.getTime() < Date.now();
-
-                if (!isValidDate || !isValidTime) {
-                    return this.createError({
-                        message: 'Fälligkeitsdatum im ungültigem Format'
-                    });
-                }
-
-                if (isInPast) {
-                    return this.createError({
-                        message: 'Fälligkeitsdatum darf nicht in der Vergangenheit sein'
-                    });
-                }
-                return true;
-            }
+    dueDate: mixed()
+        .nullable()
+        .optional()
+        .transform((value) => {
+            console.log(value);
+            if (!value) return null;
+            const date = new Date(value);
+            return isNaN(date.getTime()) ? undefined : date;
         })
-    }),
-    priority: mixed<"low" | "medium" | "high">().oneOf(["low", "medium", "high"]).optional(),
+        .test('future-date', 'Datum muss in der Zukunft liegen', (value) => {
+            if (!value || !(value instanceof Date)) return true;
+            return value.getTime() > Date.now();
+        }),
+    priority: mixed<"low" | "medium" | "high">()
+        .oneOf(["low", "medium", "high"])
+        .optional(),
     tags: array().of(string()).optional(),
     files: array().of(object({
         name: string().required(),
