@@ -54,8 +54,8 @@ jobs:
         file: Dockerfile
         push: true
         tags: |
-          harbor.m-loeffler.de/portfolio/todoApp01:latest
-          harbor.m-loeffler.de/portfolio/todoApp01:${{ env.BUILD_ID }}
+          harbor.m-loeffler.de/portfolio/todoapp01:latest
+          harbor.m-loeffler.de/portfolio/todoapp01:${{ env.BUILD_ID }}
         build-args: |
           BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
           BUILD_ID=${{ env.BUILD_ID }}
