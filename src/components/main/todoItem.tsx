@@ -71,9 +71,6 @@ function ToDoItem({ todo, mode = "active" }: { todo: ToDo, mode: 'active' | 'com
         >
           <Box
             sx={{ 
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
               color: todo.dueDate && new Date(todo.dueDate) < new Date() 
                 ? 'error.main' 
                 : 'inherit'

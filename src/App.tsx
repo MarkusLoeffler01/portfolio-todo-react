@@ -57,8 +57,8 @@ function App() {
       { __BUILD_ID__ && <Box sx={{position: "absolute", top: "95%", left: "0", marginLeft: "10px", color: "#252525"}}>
           <p>BuildID: {__BUILD_ID__}</p>
       </Box>}
-      { __BUILD_TIMESTAMP__ && <Box sx={{position: "absolute", top: "95%", right: "0", marginRight: "10px", color: "#252525"}}>
-        <p>Compiled at: {new Date(__BUILD_TIMESTAMP__).toLocaleString()}</p>
+      { __BUILD_TIMESTAMP_UNIX__ && <Box sx={{position: "absolute", top: "95%", right: "0", marginRight: "10px", color: "#252525"}}>
+        <p>Compiled at: {new Date(Number(__BUILD_TIMESTAMP_UNIX__) * 1000).toLocaleString()}</p>
       </Box> }
       </LocalizationProvider>
     </ThemeProvider>

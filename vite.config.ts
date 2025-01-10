@@ -6,8 +6,9 @@ import { execSync } from 'child_process'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: process.env.VITE_BASE_PATH || "/todo/", // Muss vor jedem Deployment angepasst werden
   define: {
-    __BUILD_TIMESTAMP__: JSON.stringify(process.env.BUILD_TIMESTAMP || Math.floor(Date.now() / 1000)), // Fallback: Aktuelle Unix-Zeit
+    __BUILD_TIMESTAMP_UNIX__: JSON.stringify(process.env.BUILD_TIMESTAMP || Math.floor(Date.now() / 1000)), // Fallback: Aktuelle Unix-Zeit
     __BUILD_ID__: JSON.stringify(process.env.BUILD_ID || execSync('git rev-parse --short HEAD').toString().trim()), // Fallback: Aktueller Git-Commit
   },
   build: {
