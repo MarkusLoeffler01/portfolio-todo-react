@@ -13,7 +13,7 @@ RUN npm i --silent
 COPY . .
 
 # Build mit dynamischem Base Path
-ARG VITE_BASE_PATH=/todoreact01/
+ARG VITE_BASE_PATH=/todo/
 ENV VITE_BASE_PATH=$VITE_BASE_PATH
 
 ARG BUILD_TIMESTAMP
