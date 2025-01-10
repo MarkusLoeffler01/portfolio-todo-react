@@ -59,3 +59,4 @@ jobs:
         build-args: |
           BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
           BUILD_ID=${{ env.BUILD_ID }}
+          VITE_BASE_PATH: "/todo/"
